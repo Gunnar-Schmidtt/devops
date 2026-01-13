@@ -10,10 +10,14 @@
     "type": "git",
     "url": "git+https://github.com/Gunnar-Schmidtt/devops.git"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Gunnar-Schmidtt/devops/issues"
   },
-  "homepage": "https://github.com/Gunnar-Schmidtt/devops#readme"
+  "homepage": "https://github.com/Gunnar-Schmidtt/devops#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
 }
