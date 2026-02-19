@@ -28,7 +28,7 @@ jobs:
           APP_DIR: /home/gschmidt1/devops
           PM2_NAME: ${{ vars.PM2_NAME }}
         run: |
-          ssh -i ~/.ssh/rotary-phone -T "gschmidt1@$SSH_HOST" << EOF
+          ssh -i ~/.ssh/devops-key -T "gschmidt1@$SSH_HOST" << EOF
             set -e
 
             echo "WHOAMI:"
