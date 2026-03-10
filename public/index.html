@@ -3,271 +3,254 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CIS 486 - Attendance Tracker</title>
+  <title>Time Since Tracker</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f6fb;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
     }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    .main-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 24px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
     }
-    h1, h2 {
-      color: #333;
+    h1 {
+      text-align: center;
+      color: #2d3a4b;
+      margin-bottom: 32px;
     }
-    .class-info {
-      background: #e8f4fd;
-      border-left: 4px solid #2196F3;
+    .timer-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 24px;
+      margin-bottom: 32px;
+      align-items: end;
     }
-    .form-group {
-      margin-bottom: 15px;
+    .timer-form label {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #2d3a4b;
     }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    input {
+    .timer-form input, .timer-form textarea {
       width: 100%;
       padding: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid #cfd8dc;
       border-radius: 4px;
-      font-size: 16px;
+      font-size: 15px;
+      background: #f8fafc;
+      margin-bottom: 8px;
+      resize: none;
     }
-    button {
-      background: #2196F3;
-      color: white;
-      padding: 10px 20px;
+    .timer-form textarea {
+      min-height: 38px;
+      max-height: 80px;
+    }
+    .timer-form button {
+      grid-column: 1 / -1;
+      background: #1976d2;
+      color: #fff;
       border: none;
       border-radius: 4px;
-      cursor: pointer;
+      padding: 12px 0;
       font-size: 16px;
-      margin-right: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    button:hover {
-      background: #1976D2;
+    .timer-form button:hover {
+      background: #125ea2;
     }
-    .delete-btn {
-      background: #f44336;
+    .timers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
     }
-    .delete-btn:hover {
-      background: #d32f2f;
+    .timer-card {
+      background: #f8fafc;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 20px 18px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: relative;
+      min-height: 160px;
     }
-    .edit-btn {
-      background: #ff9800;
+    .timer-label {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #1976d2;
+      margin-bottom: 6px;
     }
-    .edit-btn:hover {
-      background: #f57c00;
+    .timer-desc {
+      color: #444;
+      font-size: 0.98em;
+      margin-bottom: 12px;
+      word-break: break-word;
     }
-    .message {
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 4px;
+    .timer-since {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #2d3a4b;
+      margin-bottom: 6px;
     }
-    .success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+    .timer-date {
+      font-size: 0.93em;
+      color: #888;
+      margin-bottom: 2px;
     }
-    .error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+    .remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #e53935;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    .record {
-      background: #f8f9fa;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 4px;
-      border: 1px solid #dee2e6;
+    .remove-btn:hover {
+      background: #b71c1c;
     }
-    #attendanceList {
-      max-height: 400px;
-      overflow-y: auto;
+    @media (max-width: 600px) {
+      .main-container {
+        padding: 8px;
+      }
+      .timer-form {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Class Information Section -->
-  <div class="container class-info">
-    <h1>Class Information123</h1>
-    <div id="classInfo">Loading class information...</div>
-  </div>
-
-  <!-- Attendance Form -->
-  <div class="container">
-    <h2>Student Attendance</h2>
-    <div id="message"></div>
-    
-    <form id="attendanceForm">
-      <div class="form-group">
-        <label for="studentName">Student Name:</label>
-        <input type="text" id="studentName" required>
+  <div class="main-container">
+    <h1>Time Since Tracker</h1>
+    <form class="timer-form" id="timerForm" autocomplete="off">
+      <div>
+        <label for="date">Date</label>
+        <input type="date" id="date" required>
       </div>
-      
-      <div class="form-group">
-        <label for="date">Today's Date:</label>
-        <input type="text" id="date" required placeholder="February 3, 2026">
+      <div>
+        <label for="time">Time</label>
+        <input type="time" id="time" required>
       </div>
-      
-      <div class="form-group">
-        <label for="keyword">Keyword from Board:</label>
-        <input type="text" id="keyword" required>
+      <div>
+        <label for="label">Label</label>
+        <input type="text" id="label" maxlength="40" required placeholder="e.g. Project Launch">
       </div>
-      
-      <button type="submit">Record Attendance</button>
-      <button type="button" onclick="loadAttendance()">Refresh List</button>
+      <div>
+        <label for="desc">Description</label>
+        <textarea id="desc" maxlength="120" placeholder="Optional description..."></textarea>
+      </div>
+      <button type="submit">Add Timer Card</button>
     </form>
-  </div>
-
-  <!-- Attendance Records -->
-  <div class="container">
-    <h2>Attendance Records</h2>
-    <div id="attendanceList">Loading attendance records...</div>
+    <div class="timers-grid" id="timersGrid"></div>
   </div>
 
   <script>
-    let editingId = null;
+    // Timer card logic
+    const timerForm = document.getElementById('timerForm');
+    const timersGrid = document.getElementById('timersGrid');
+    let timers = [];
 
-    // Load class information on page load
-    async function loadClassInfo() {
-      try {
-        const response = await fetch('/api/class');
-        const classData = await response.json();
-        
-        document.getElementById('classInfo').innerHTML = `
-          <h3>${classData.courseNumber} - ${classData.courseName}</h3>
-          <p><strong>Nickname:</strong> ${classData.nickname}</p>
-          <p><strong>Semester:</strong> ${classData.semester}</p>
-          <p><strong>Calendar:</strong> ${classData.calendar}</p>
+    function pad(n) { return n < 10 ? '0' + n : n; }
+
+    function formatDuration(ms) {
+      if (ms < 0) return 'Not started';
+      const s = Math.floor(ms / 1000) % 60;
+      const m = Math.floor(ms / 60000) % 60;
+      const h = Math.floor(ms / 3600000) % 24;
+      const d = Math.floor(ms / 86400000);
+      let out = '';
+      if (d > 0) out += d + 'd ';
+      out += pad(h) + ':' + pad(m) + ':' + pad(s);
+      return out;
+    }
+
+    function renderTimers() {
+      timersGrid.innerHTML = '';
+      timers.forEach((timer, idx) => {
+        const card = document.createElement('div');
+        card.className = 'timer-card';
+        card.innerHTML = `
+          <button class="remove-btn" title="Remove" onclick="removeTimer('${timer._id}')">&times;</button>
+          <div class="timer-label">${timer.label}</div>
+          <div class="timer-desc">${timer.desc ? timer.desc : ''}</div>
+          <div class="timer-date">${timer.dateStr} ${timer.timeStr}</div>
+          <div class="timer-since" id="since-${timer._id}">${formatDuration(Date.now() - timer.startTime)}</div>
         `;
-      } catch (error) {
-        document.getElementById('classInfo').innerHTML = 'Error loading class information';
+        timersGrid.appendChild(card);
+      });
+    }
+
+    function updateTimers() {
+      timers.forEach((timer) => {
+        const el = document.getElementById('since-' + timer._id);
+        if (el) {
+          el.textContent = formatDuration(Date.now() - timer.startTime);
+        }
+      });
+    }
+
+    async function loadTimers() {
+      try {
+        const res = await fetch('/api/timers');
+        const data = await res.json();
+        // Convert startTime to number if needed
+        timers = data.map(t => ({ ...t, startTime: typeof t.startTime === 'number' ? t.startTime : Number(t.startTime) }));
+        renderTimers();
+      } catch (e) {
+        timersGrid.innerHTML = '<div style="color:red">Failed to load timers</div>';
       }
     }
 
-    // Handle form submission
-    document.getElementById('attendanceForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const studentName = document.getElementById('studentName').value;
-      const date = document.getElementById('date').value;
-      const keyword = document.getElementById('keyword').value;
-
+    window.removeTimer = async function(id) {
+      if (!confirm('Delete this timer?')) return;
       try {
-        const url = editingId ? `/api/attendance/${editingId}` : '/api/attendance';
-        const method = editingId ? 'PUT' : 'POST';
-        
-        const response = await fetch(url, {
-          method: method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            studentName,
-            date,
-            keyword
-          })
-        });
+        await fetch('/api/timers/' + id, { method: 'DELETE' });
+        await loadTimers();
+      } catch (e) {
+        alert('Failed to delete timer');
+      }
+    };
 
-        const result = await response.json();
-        
-        if (response.ok) {
-          showMessage(result.message, 'success');
-          document.getElementById('attendanceForm').reset();
-          if (editingId) {
-            editingId = null;
-            document.querySelector('button[type="submit"]').textContent = 'Record Attendance';
-          }
-          loadAttendance();
-        } else {
-          showMessage(result.error, 'error');
-        }
-      } catch (error) {
-        showMessage('Error submitting form', 'error');
+    timerForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      const label = document.getElementById('label').value.trim();
+      const desc = document.getElementById('desc').value.trim();
+      if (!date || !time || !label) return;
+      const startTime = new Date(date + 'T' + time).getTime();
+      const dateStr = date;
+      const timeStr = time;
+      try {
+        await fetch('/api/timers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ startTime, label, desc, dateStr, timeStr })
+        });
+        await loadTimers();
+        timerForm.reset();
+      } catch (e) {
+        alert('Failed to add timer');
       }
     });
 
-    // Load attendance records
-    async function loadAttendance() {
-      try {
-        const response = await fetch('/api/attendance');
-        const records = await response.json();
-        
-        const listDiv = document.getElementById('attendanceList');
-        
-        if (records.length === 0) {
-          listDiv.innerHTML = '<p>No attendance records yet.</p>';
-          return;
-        }
-
-        listDiv.innerHTML = records.map(record => `
-          <div class="record">
-            <strong>${record.studentName}</strong> - ${record.date}<br>
-            <small>Keyword: ${record.keyword} | Recorded: ${new Date(record.timestamp).toLocaleString()}</small><br>
-            <button class="edit-btn" onclick="editRecord('${record._id}', '${record.studentName}', '${record.date}', '${record.keyword}')">Edit</button>
-            <button class="delete-btn" onclick="deleteRecord('${record._id}')">Delete</button>
-          </div>
-        `).join('');
-      } catch (error) {
-        document.getElementById('attendanceList').innerHTML = 'Error loading attendance records';
-      }
-    }
-
-    // Edit record
-    function editRecord(id, studentName, date, keyword) {
-      editingId = id;
-      document.getElementById('studentName').value = studentName;
-      document.getElementById('date').value = date;
-      document.getElementById('keyword').value = keyword;
-      document.querySelector('button[type="submit"]').textContent = 'Update Attendance';
-      showMessage('Editing record - click Update to save changes', 'success');
-    }
-
-    // Delete record
-    async function deleteRecord(id) {
-      if (!confirm('Are you sure you want to delete this record?')) return;
-      
-      try {
-        const response = await fetch(`/api/attendance/${id}`, {
-          method: 'DELETE'
-        });
-
-        const result = await response.json();
-        
-        if (response.ok) {
-          showMessage(result.message, 'success');
-          loadAttendance();
-        } else {
-          showMessage(result.error, 'error');
-        }
-      } catch (error) {
-        showMessage('Error deleting record', 'error');
-      }
-    }
-
-    // Show message
-    function showMessage(text, type) {
-      const messageDiv = document.getElementById('message');
-      messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
-      setTimeout(() => {
-        messageDiv.innerHTML = '';
-      }, 3000);
-    }
-
-    // Initialize page
-    loadClassInfo();
-    loadAttendance();
-
-    // Set today's date as default
-    document.getElementById('date').value = 'February 3, 2026';
+    // Initial load
+    loadTimers();
+    // Update all timers every second
+    setInterval(updateTimers, 1000);
   </script>
 </body>
 </html>
