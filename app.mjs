@@ -89,6 +89,35 @@ app.get('/', (req, res) => {
 });
 
 // API Health/Endpoints Documentation
+
+// ADD NOTE - Add a dated note to a timer
+app.post('/api/timers/:id/notes', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { text, date } = req.body;
+    if (!text) {
+      return res.status(400).json({ error: 'Note text is required' });
+    }
+    const db = client.db('cis486');
+    const collection = db.collection('timers');
+    const note = {
+      text,
+      date: date ? new Date(date) : new Date()
+    };
+    const result = await collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $push: { notes: note } }
+    );
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Timer not found' });
+    }
+    res.json({ message: 'Note added!' });
+  } catch (error) {
+    console.error('Error adding note:', error);
+    res.status(500).json({ error: 'Failed to add note' });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
@@ -98,7 +127,8 @@ app.get('/api/health', (req, res) => {
       { method: 'GET', path: '/', description: 'Serve main HTML page' },
       { method: 'POST', path: '/api/timers', description: 'Add new timer card' },
       { method: 'GET', path: '/api/timers', description: 'Get all timer cards' },
-      { method: 'DELETE', path: '/api/timers/:id', description: 'Delete timer card' }
+      { method: 'DELETE', path: '/api/timers/:id', description: 'Delete timer card' },
+      { method: 'POST', path: '/api/timers/:id/notes', description: 'Add a note to a timer' }
     ]
   });
 });
