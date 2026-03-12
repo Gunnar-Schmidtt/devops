@@ -34,9 +34,12 @@ jobs:
           ssh -i ~/.ssh/id_rsa -T "$SSH_USER@$SSH_HOST" <<EOF
             set -e
 
+            # Fix Git safe directory issue
+            git config --global --add safe.directory "$APP_DIR"
+
             cd "$APP_DIR"
 
-            git pull
+            git pull origin main
             sudo npm ci
 
             pm2 delete "$PM2_NAME" || true
